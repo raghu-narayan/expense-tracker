@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Expense Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; font-weight: 600; }
+        .header p { font-size: 14px; opacity: 0.8; margin-top: 4px; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-field label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #374151;
+        }
+        .form-field input, .form-field select {
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-secondary { background: #9ca3af; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .tab {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+        .filter-field { display: flex; flex-direction: column; }
+        .filter-field label {
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #6b7280;
+        }
+        .filter-field select, .filter-field input {
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #e5e7eb;
+            font-weight: 600;
+            color: #374151;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .amount { font-weight: 600; color: #059669; }
+        .category-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e0e7ff;
+            color: #4338ca;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .actions { display: flex; gap: 8px; }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .total-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .total-card .label { font-size: 14px; opacity: 0.9; }
+        .total-card .amount { font-size: 36px; font-weight: 700; margin-top: 8px; }
+
+        .stat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+        .stat-item-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .stat-bar-container {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 12px;
+        }
+        .stat-bar {
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .stat-amount { font-weight: 600; color: #059669; }
+        .stat-count { font-size: 12px; color: #6b7280; }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        .error { color: #dc2626; font-size: 14px; margin-top: 8px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Family Expense Tracker</h1>
+        <p>Track and manage your family expenses</p>
+    </div>
+
+    <div class="container">
+        <!-- Expense Form -->
+        <div class="card" id="expense-form-card">
+            <h3 id="form-title">Add New Expense</h3>
+            <form id="expense-form">
+                <input type="hidden" id="expense-id">
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label>Amount ($)*</label>
+                        <input type="number" id="amount" step="0.01" min="0" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Category*</label>
+                        <select id="category" required>
+                            <option value="">Select category</option>
+                            <option>Food</option>
+                            <option>Transportation</option>
+                            <option>Housing</option>
+                            <option>Utilities</option>
+                            <option>Entertainment</option>
+                            <option>Healthcare</option>
+                            <option>Education</option>
+                            <option>Shopping</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Date*</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Family Member*</label>
+                        <input type="text" id="family_member" list="members-list" placeholder="Enter name" required>
+                        <datalist id="members-list"></datalist>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Description</label>
+                    <input type="text" id="description" placeholder="Optional description">
+                </div>
+
+                <div style="margin-top: 16px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Add Expense</button>
+                    <button type="button" class="btn btn-secondary hidden" id="cancel-btn">Cancel</button>
+                </div>
+                <p class="error hidden" id="form-error"></p>
+            </form>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="list">Expense List</button>
+            <button class="tab" data-tab="summary">Summary</button>
+        </div>
+
+        <!-- Expense List Tab -->
+        <div id="list-tab" class="tab-content">
+            <div class="card">
+                <div class="filters">
+                    <div class="filter-field">
+                        <label>Category</label>
+                        <select id="filter-category">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="filter-field">
+                        <label>Family Member</label>
+                        <select id="filter-member">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="filter-field">
+                        <label>From Date</label>
+                        <input type="date" id="filter-start">
+                    </div>
+                    <div class="filter-field">
+                        <label>To Date</label>
+                        <input type="date" id="filter-end">
+                    </div>
+                    <button class="btn btn-secondary btn-sm" style="align-self: flex-end;" onclick="clearFilters()">Clear</button>
+                </div>
+
+                <div id="expenses-table-container">
+                    <p class="empty">No expenses found. Add your first expense above.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Tab -->
+        <div id="summary-tab" class="tab-content hidden">
+            <div class="card">
+                <div class="filters">
+                    <div class="filter-field">
+                        <label>From Date</label>
+                        <input type="date" id="summary-start">
+                    </div>
+                    <div class="filter-field">
+                        <label>To Date</label>
+                        <input type="date" id="summary-end">
+                    </div>
+                    <button class="btn btn-primary btn-sm" style="align-self: flex-end;" onclick="loadSummary()">Apply</button>
+                </div>
+
+                <div id="summary-content">
+                    <p class="empty">No data to summarize yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CATEGORIES = ['Food', 'Transportation', 'Housing', 'Utilities', 'Entertainment', 'Healthcare', 'Education', 'Shopping', 'Other'];
+
+        // Initialize
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        loadExpenses();
+        loadFilters();
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const tabName = tab.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                document.getElementById(tabName + '-tab').classList.remove('hidden');
+                if (tabName === 'summary') loadSummary();
+            });
+        });
+
+        // Form submission
+        document.getElementById('expense-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('expense-id').value;
+            const expense = {
+                amount: parseFloat(document.getElementById('amount').value),
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                date: document.getElementById('date').value,
+                family_member: document.getElementById('family_member').value,
+            };
+
+            try {
+                const url = id ? `/api/expenses/${id}` : '/api/expenses';
+                const method = id ? 'PUT' : 'POST';
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(expense),
+                });
+                if (!response.ok) throw new Error('Failed to save');
+                resetForm();
+                loadExpenses();
+            } catch (err) {
+                document.getElementById('form-error').textContent = err.message;
+                document.getElementById('form-error').classList.remove('hidden');
+            }
+        });
+
+        // Cancel edit
+        document.getElementById('cancel-btn').addEventListener('click', resetForm);
+
+        // Filter change handlers
+        document.getElementById('filter-category').addEventListener('change', loadExpenses);
+        document.getElementById('filter-member').addEventListener('change', loadExpenses);
+        document.getElementById('filter-start').addEventListener('change', loadExpenses);
+        document.getElementById('filter-end').addEventListener('change', loadExpenses);
+
+        function resetForm() {
+            document.getElementById('expense-form').reset();
+            document.getElementById('expense-id').value = '';
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('form-title').textContent = 'Add New Expense';
+            document.getElementById('submit-btn').textContent = 'Add Expense';
+            document.getElementById('cancel-btn').classList.add('hidden');
+            document.getElementById('form-error').classList.add('hidden');
+        }
+
+        async function loadExpenses() {
+            try {
+                const params = new URLSearchParams();
+                if (document.getElementById('filter-category').value) {
+                    params.append('category', document.getElementById('filter-category').value);
+                }
+                if (document.getElementById('filter-member').value) {
+                    params.append('family_member', document.getElementById('filter-member').value);
+                }
+                if (document.getElementById('filter-start').value) {
+                    params.append('start_date', document.getElementById('filter-start').value);
+                }
+                if (document.getElementById('filter-end').value) {
+                    params.append('end_date', document.getElementById('filter-end').value);
+                }
+
+                const response = await fetch(`/api/expenses?${params}`);
+                const expenses = await response.json();
+                renderExpenses(expenses);
+            } catch (err) {
+                console.error('Failed to load expenses:', err);
+            }
+        }
+
+        function renderExpenses(expenses) {
+            const container = document.getElementById('expenses-table-container');
+            if (expenses.length === 0) {
+                container.innerHTML = '<p class="empty">No expenses found. Add your first expense above.</p>';
+                return;
+            }
+
+            const categories = [...new Set(expenses.map(e => e.category))].sort();
+            const members = [...new Set(expenses.map(e => e.family_member))].sort();
+
+            // Update filter options
+            updateSelectOptions('filter-category', categories, document.getElementById('filter-category').value);
+            updateSelectOptions('filter-member', members, document.getElementById('filter-member').value);
+
+            // Update datalist
+            const datalist = document.getElementById('members-list');
+            datalist.innerHTML = members.map(m => `<option value="${m}">`).join('');
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Member</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${expenses.map(e => `
+                            <tr>
+                                <td>${e.date}</td>
+                                <td><span class="category-badge">${e.category}</span></td>
+                                <td>${e.description || '-'}</td>
+                                <td>${e.family_member}</td>
+                                <td class="amount">$${parseFloat(e.amount).toFixed(2)}</td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn btn-primary btn-sm" onclick='editExpense(${JSON.stringify(e)})'>Edit</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteExpense(${e.id})">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function updateSelectOptions(id, options, selected) {
+            const select = document.getElementById(id);
+            const currentValue = select.value || selected;
+            select.innerHTML = '<option value="">All</option>' +
+                options.map(o => `<option value="${o}" ${o === currentValue ? 'selected' : ''}>${o}</option>`).join('');
+        }
+
+        function editExpense(expense) {
+            document.getElementById('expense-id').value = expense.id;
+            document.getElementById('amount').value = expense.amount;
+            document.getElementById('category').value = expense.category;
+            document.getElementById('description').value = expense.description;
+            document.getElementById('date').value = expense.date;
+            document.getElementById('family_member').value = expense.family_member;
+            document.getElementById('form-title').textContent = 'Edit Expense';
+            document.getElementById('submit-btn').textContent = 'Update';
+            document.getElementById('cancel-btn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function deleteExpense(id) {
+            if (!confirm('Are you sure?')) return;
+            try {
+                await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+                loadExpenses();
+            } catch (err) {
+                alert('Failed to delete: ' + err.message);
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-member').value = '';
+            document.getElementById('filter-start').value = '';
+            document.getElementById('filter-end').value = '';
+            loadExpenses();
+        }
+
+        async function loadSummary() {
+            try {
+                const params = new URLSearchParams();
+                if (document.getElementById('summary-start').value) {
+                    params.append('start_date', document.getElementById('summary-start').value);
+                }
+                if (document.getElementById('summary-end').value) {
+                    params.append('end_date', document.getElementById('summary-end').value);
+                }
+
+                const response = await fetch(`/api/summary?${params}`);
+                const summary = await response.json();
+                renderSummary(summary);
+            } catch (err) {
+                console.error('Failed to load summary:', err);
+            }
+        }
+
+        function renderSummary(summary) {
+            const container = document.getElementById('summary-content');
+            if (!summary.byCategory.length && !summary.byFamilyMember.length) {
+                container.innerHTML = '<p class="empty">No data to summarize yet.</p>';
+                return;
+            }
+
+            const maxCategory = Math.max(...summary.byCategory.map(c => c.total), 1);
+            const maxMember = Math.max(...summary.byFamilyMember.map(m => m.total), 1);
+
+            container.innerHTML = `
+                <div class="total-card">
+                    <div class="label">Total Spending</div>
+                    <div class="amount">$${parseFloat(summary.total).toFixed(2)}</div>
+                </div>
+                <div class="summary-grid">
+                    <div class="card">
+                        <h4 style="margin-bottom: 12px;">By Category</h4>
+                        <div class="stat-list">
+                            ${summary.byCategory.map(item => `
+                                <div class="stat-item">
+                                    <div class="stat-item-left">
+                                        <span>${item.category}</span>
+                                        <div class="stat-bar-container">
+                                            <div class="stat-bar" style="width: ${(item.total / maxCategory) * 100}%"></div>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div class="stat-amount">$${parseFloat(item.total).toFixed(2)}</div>
+                                        <div class="stat-count">${item.count} expense${item.count > 1 ? 's' : ''}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4 style="margin-bottom: 12px;">By Family Member</h4>
+                        <div class="stat-list">
+                            ${summary.byFamilyMember.map(item => `
+                                <div class="stat-item">
+                                    <div class="stat-item-left">
+                                        <span>${item.family_member}</span>
+                                        <div class="stat-bar-container">
+                                            <div class="stat-bar" style="width: ${(item.total / maxMember) * 100}%"></div>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div class="stat-amount">$${parseFloat(item.total).toFixed(2)}</div>
+                                        <div class="stat-count">${item.count} expense${item.count > 1 ? 's' : ''}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadFilters() {
+            try {
+                const response = await fetch('/api/filters');
+                const filters = await response.json();
+                const datalist = document.getElementById('members-list');
+                datalist.innerHTML = filters.familyMembers.map(m => `<option value="${m}">`).join('');
+            } catch (err) {
+                console.error('Failed to load filters:', err);
+            }
+        }
+    </script>
+</body>
+</html>
